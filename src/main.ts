@@ -15,31 +15,41 @@ type ObjectShape = {
 };
 
 const objectShapes: ObjectShape[] = [
-    { id: 1, name: 'f' },
-    { id: 2, name: 's' },
-    { id: 3, name: 't' },
+    {id: 1, name: 'f'},
+    {id: 2, name: 's'},
+    {id: 3, name: 't'},
 ];
 
 class FirstTask {
     static async getAndRenderPosts(): Promise<void> {
-        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
-        const posts: Post[] = await response.json();
+        try {
+            const response = await fetch('https://jsonplaceholder.typicode.com/posts');
 
-        // Slice to get first 5 posts
-        const slicedPosts = posts.slice(0, 5);
+            if (!response.ok) {
+                throw new Error('Api server returned bad response')
+            }
 
-        const container = document.createElement('div');
-        slicedPosts.forEach((post) => {
-            const postElem = document.createElement('div');
-            postElem.innerHTML = `
+            const posts: Post[] = await response.json();
+
+            // Slice to get first 5 posts
+            const slicedPosts = posts.slice(0, 5);
+
+            const container = document.createElement('div');
+            slicedPosts.forEach((post) => {
+                const postElem = document.createElement('div');
+                postElem.innerHTML = `
         <h2>${post.title}</h2>
         <p>${post.body}</p>
         <p>By user ${post.userId}</p>
       `;
-            container.appendChild(postElem);
-        });
+                container.appendChild(postElem);
+            });
 
-        document.body.appendChild(container);
+            document.body.appendChild(container);
+        } catch (error) {
+            console.error(error)
+        }
+
     }
 }
 
@@ -50,18 +60,22 @@ class SecondTask {
         value: number | string,
         patch: Partial<ObjectShape>
     ): ObjectShape[] {
-        const indexToUpdate = initialArray.findIndex((item) => item[key] === value);
+        try {
+            const indexToUpdate = initialArray.findIndex((item) => item[key] === value);
 
-        if (indexToUpdate === -1) {
-            // key value not found, return the original array
-            return initialArray;
+            if (indexToUpdate === -1) {
+                throw new Error(`No item found with ${String(key)} = ${value}`);
+            }
+
+            const updatedItem = {...initialArray[indexToUpdate], ...patch};
+            const updatedArray = [...initialArray]
+            updatedArray[indexToUpdate] = updatedItem;
+
+            return updatedArray;
+        } catch (error) {
+            console.error(error)
+            return initialArray
         }
-
-        const updatedItem = { ...initialArray[indexToUpdate], ...patch };
-        const updatedArray = [...initialArray]
-        updatedArray[indexToUpdate] = updatedItem;
-
-        return updatedArray;
     }
 }
 
@@ -73,7 +87,7 @@ class Work {
                 objectShapes,
                 'id',
                 2,
-                { name: 'yeah' }
+                {name: 'yeah'}
             );
             Work.renderResult(updatedArray);
         });

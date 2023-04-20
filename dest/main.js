@@ -19,35 +19,48 @@ const objectShapes = [
 class FirstTask {
     static getAndRenderPosts() {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield fetch('https://jsonplaceholder.typicode.com/posts');
-            const posts = yield response.json();
-            // Slice to get first 5 posts
-            const slicedPosts = posts.slice(0, 5);
-            const container = document.createElement('div');
-            slicedPosts.forEach((post) => {
-                const postElem = document.createElement('div');
-                postElem.innerHTML = `
+            try {
+                const response = yield fetch('https://jsonplaceholder.typicode.com/posts');
+                if (!response.ok) {
+                    throw new Error('Api server returned bad response');
+                }
+                const posts = yield response.json();
+                // Slice to get first 5 posts
+                const slicedPosts = posts.slice(0, 5);
+                const container = document.createElement('div');
+                slicedPosts.forEach((post) => {
+                    const postElem = document.createElement('div');
+                    postElem.innerHTML = `
         <h2>${post.title}</h2>
         <p>${post.body}</p>
         <p>By user ${post.userId}</p>
       `;
-                container.appendChild(postElem);
-            });
-            document.body.appendChild(container);
+                    container.appendChild(postElem);
+                });
+                document.body.appendChild(container);
+            }
+            catch (error) {
+                console.error(error);
+            }
         });
     }
 }
 class SecondTask {
     static updateObjectInArray(initialArray, key, value, patch) {
-        const indexToUpdate = initialArray.findIndex((item) => item[key] === value);
-        if (indexToUpdate === -1) {
-            // key value not found, return the original array
+        try {
+            const indexToUpdate = initialArray.findIndex((item) => item[key] === value);
+            if (indexToUpdate === -1) {
+                throw new Error(`No item found with ${String(key)} = ${value}`);
+            }
+            const updatedItem = Object.assign(Object.assign({}, initialArray[indexToUpdate]), patch);
+            const updatedArray = [...initialArray];
+            updatedArray[indexToUpdate] = updatedItem;
+            return updatedArray;
+        }
+        catch (error) {
+            console.error(error);
             return initialArray;
         }
-        const updatedItem = Object.assign(Object.assign({}, initialArray[indexToUpdate]), patch);
-        const updatedArray = [...initialArray];
-        updatedArray[indexToUpdate] = updatedItem;
-        return updatedArray;
     }
 }
 class Work {
